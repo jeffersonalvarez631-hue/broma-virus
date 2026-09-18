@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>System Diagnostic</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #050505;
+    color: #00ff66;
+    font-family: "Courier New", monospace;
+    overflow-x: hidden;
+}
+
+.pantalla {
+    min-height: 100vh;
+    padding: 25px;
+}
+
+.oculto {
+    display: none;
+}
+
+/* =========================
+   PANTALLA 1
+========================= */
+
+#pantalla1 h1 {
+    color: #ff3030;
+    text-align: center;
+    font-size: 32px;
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px red;
+}
+
+.subtitulo {
+    text-align: center;
+    color: #aaa;
+    margin-bottom: 30px;
+}
+
+#terminal {
+    max-width: 850px;
+    margin: auto;
+    border: 1px solid #00ff66;
+    padding: 20px;
+    min-height: 450px;
+    background: #020202;
+    box-shadow: 0 0 20px rgba(0,255,100,.15);
+    overflow-y: auto;
+}
+
+.linea {
+    margin: 13px 0;
+    font-size: 18px;
+}
+
+.warning {
+    color: #ff3030;
+    font-weight: bold;
+}
+
+.barra {
+    width: 100%;
+    max-width: 850px;
+    height: 22px;
+    border: 1px solid #00ff66;
+    margin: 25px auto 0;
+}
+
+#progreso {
+    height: 100%;
+    width: 0%;
+    background: #00ff66;
+    box-shadow: 0 0 10px #00ff66;
+    transition: width .4s;
+}
+
+
+/* =========================
+   PANTALLA 2
+========================= */
+
+#pantalla2 {
+    background: #080000;
+    color: white;
+}
+
+.informe {
+    max-width: 900px;
+    margin: auto;
+    border: 2px solid #ff3030;
+    padding: 25px;
+    background: #100000;
+    box-shadow: 0 0 30px rgba(255,0,0,.2);
+}
+
+.tituloInforme {
+    color: #ff3030;
+    text-align: center;
+    font-size: 30px;
+    text-shadow: 0 0 12px red;
+}
+
+.estado {
+    text-align: center;
+    color: #ffcc00;
+    margin-bottom: 25px;
+}
+
+.dato {
+    border: 1px solid #522020;
+    padding: 14px;
+    margin: 10px 0;
+    background: #160606;
+}
+
+.dato span {
+    float: right;
+    color: #ff3030;
+}
+
+
+/* =========================
+   ALERTA FINAL
+========================= */
+
+.alerta-final {
+    margin-top: 30px;
+    padding: 20px;
+    border: 2px solid #ff3030;
+    background: #210000;
+    color: #ff3030;
+    font-weight: bold;
+    font-size: 17px;
+    line-height: 1.6;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(255,0,0,.25);
+}
+
+
+/* =========================
+   BOTÓN
+========================= */
+
+.boton {
+    display: block;
+    width: 280px;
+    margin: 30px auto 10px;
+    padding: 16px;
+    text-align: center;
+    background: #b00000;
+    color: white;
+    text-decoration: none;
+    border: 1px solid red;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 0 15px rgba(255,0,0,.4);
+}
+
+.boton:hover {
+    background: #ff0000;
+}
+
+
+/* =========================
+   PANTALLA 3
+========================= */
+
+#pantalla3 {
+    display: none;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: #050505;
+    padding: 20px;
+}
+
+.broma {
+    max-width: 700px;
+    border: 3px solid #00ff66;
+    padding: 50px 25px;
+    box-shadow: 0 0 40px rgba(0,255,100,.3);
+}
+
+.broma h1 {
+    color: #00ff66;
+    font-size: 48px;
+    text-shadow: 0 0 15px #00ff66;
+}
+
+.broma p {
+    color: white;
+    font-size: 21px;
+    line-height: 1.6;
+}
+
+.pequeno {
+    color: #888;
+    font-size: 14px !important;
+}
+
+
+/* =========================
+   CELULAR
+========================= */
+
+@media(max-width:600px) {
+
+    .pantalla {
+        padding: 15px;
+    }
+
+    .linea {
+        font-size: 15px;
+    }
+
+    #pantalla1 h1 {
+        font-size: 25px;
+    }
+
+    .dato span {
+        float: none;
+        display: block;
+        margin-top: 5px;
+    }
+
+    .alerta-final {
+        font-size: 14px;
+    }
+
+    .broma h1 {
+        font-size: 35px;
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<!-- =================================
+     PANTALLA 1
+================================= -->
+
+<section id="pantalla1" class="pantalla">
+
+    <h1>⚠ SYSTEM DIAGNOSTIC</h1>
+
+    <div class="subtitulo">
+        Analizando dispositivo...
+    </div>
+
+    <div id="terminal"></div>
+
+    <div class="barra">
+        <div id="progreso"></div>
+    </div>
+
+</section>
+
+
+
+<!-- =================================
+     PANTALLA 2
+================================= -->
+
+<section id="pantalla2" class="pantalla oculto">
+
+    <div class="informe">
+
+        <div class="tituloInforme">
+            ⚠ INFORME DE SEGURIDAD
+        </div>
+
+        <div class="estado">
+            PROCESO FINALIZADO — INFORME GENERADO
+        </div>
+
+        <p>
+            Se ha generado un informe con los elementos
+            detectados durante el diagnóstico.
+        </p>
+
+
+        <div class="dato">
+            📷 Imágenes de galería
+            <span>PROCESADO</span>
+        </div>
+
+
+        <div class="dato">
+            🎥 Vídeos del dispositivo
+            <span>PROCESADO</span>
+        </div>
+
+
+        <div class="dato">
+            💬 Archivos multimedia de WhatsApp
+            <span>PROCESADO</span>
+        </div>
+
+
+        <div class="dato">
+            🌐 Historial del navegador
+            <span>PROCESADO</span>
+        </div>
+
+
+        <div class="dato">
+            🔎 Búsquedas recientes
+            <span>PROCESADO</span>
+        </div>
+
+
+        <div class="dato">
+            👤 Lista de contactos
+            <span>PROCESADO</span>
+        </div>
+
+
+        <div class="dato">
+            📧 Cuentas de correo
+            <span>PROCESADO</span>
+        </div>
+
+
+        <div class="dato">
+            📱 Aplicaciones instaladas
+            <span>PROCESADO</span>
+        </div>
+
+
+        <div class="dato">
+            📁 Documentos recientes
+            <span>PROCESADO</span>
+        </div>
+
+
+        <div class="dato">
+            🎵 Archivos multimedia
+            <span>PROCESADO</span>
+        </div>
+
+
+        <div class="dato">
+            📍 Ubicaciones recientes
+            <span>PROCESADO</span>
+        </div>
+
+
+        <div class="dato">
+            🔔 Notificaciones recientes
+            <span>PROCESADO</span>
+        </div>
+
+
+        <div class="dato">
+            ☁️ Servicios de almacenamiento
+            <span>PROCESADO</span>
+        </div>
+
+
+        <div class="dato">
+            🔐 Cuentas vinculadas
+            <span>PROCESADO</span>
+        </div>
+
+
+        <div class="dato">
+            📋 Datos temporales
+            <span>PROCESADO</span>
+        </div>
+
+
+        <!-- AVISOS FINALES -->
+
+        <div class="alerta-final">
+
+            ⚠ TODOS TUS DATOS PERSONALES HAN SIDO RECOPILADOS
+            <br><br>
+
+            ⚠ FOTOGRAFÍAS, VÍDEOS Y ARCHIVOS PREPARADOS
+            <br><br>
+
+            ⚠ INFORMACIÓN PERSONAL LISTA PARA SER ENVIADA
+            <br><br>
+
+            ⚠ DATOS PREPARADOS PARA COMPARTIR CON TUS CONTACTOS Y REDES SOCIALES
+            <br><br>
+
+            ⚠ ÚLTIMA ADVERTENCIA: EL PROCESO ESTÁ LISTO PARA CONTINUAR
+            <br><br>
+
+            ⚠ ABRE EL SIGUIENTE ARCHIVO PARA DETENER EL PROCESO
+
+        </div>
+
+
+        <a class="boton" onclick="mostrarBroma()">
+            ⚠ ABRIR ARCHIVO DE SEGURIDAD
+        </a>
+
+    </div>
+
+</section>
+
+
+
+<!-- =================================
+     PANTALLA 3
+================================= -->
+
+<section id="pantalla3">
+
+    <div class="broma">
+
+        <h1>😂 ¡ERA UNA BROMA!</h1>
+
+        <p>
+            ¡CAÍSTE! 😎
+        </p>
+
+        <p>
+            No se recopilaron fotografías,
+            vídeos, mensajes, contactos,
+            correos ni historial.
+        </p>
+
+        <p class="pequeno">
+            Esta página era solamente una simulación
+            visual para la broma.
+        </p>
+
+    </div>
+
+</section>
+
+
+
+<script>
+
+/* =================================
+   MENSAJES DE LA PRIMERA PANTALLA
+================================= */
+
+const mensajes = [
+
+    "Inicializando módulo de seguridad...",
+    "Conectando con sistema de diagnóstico...",
+    "Analizando almacenamiento interno...",
+    "Comprobando archivos multimedia...",
+    "Analizando galería de imágenes...",
+    "Detectando fotografías...",
+    "Detectando vídeos...",
+    "Comprobando aplicaciones instaladas...",
+    "Analizando datos de aplicaciones...",
+    "Revisando archivos recientes...",
+    "Comprobando archivos de WhatsApp...",
+    "Analizando historial del navegador...",
+    "Analizando búsquedas recientes...",
+    "Comprobando lista de contactos...",
+    "Buscando cuentas asociadas...",
+    "Analizando documentos...",
+    "Comprobando almacenamiento en la nube...",
+    "Preparando información...",
+    "Preparando fotografías para transferencia...",
+    "Preparando vídeos para transferencia...",
+    "Preparando archivos multimedia...",
+    "Preparando información de contactos...",
+    "Preparando historial del navegador...",
+    "Preparando lista de destinatarios...",
+    "Publicando fotografías...",
+    "Publicando vídeos...",
+    "Transfiriendo documentos...",
+    "⚠ TRANSFERENCIA DE DATOS INICIADA",
+    "Verificando transferencia..."
+
+];
+
+
+let terminal = document.getElementById("terminal");
+
+let progreso = document.getElementById("progreso");
+
+let numero = 0;
+
+
+/* =================================
+   MOSTRAR MENSAJES
+================================= */
+
+function siguienteMensaje() {
+
+    if (numero < mensajes.length) {
+
+        let linea = document.createElement("div");
+
+        linea.className = "linea";
+
+
+        if (
+            mensajes[numero].includes("⚠") ||
+            mensajes[numero].includes("TRANSFERENCIA")
+        ) {
+
+            linea.classList.add("warning");
+
+        }
+
+
+        linea.textContent =
+            "> " + mensajes[numero];
+
+
+        terminal.appendChild(linea);
+
+
+        terminal.scrollTop =
+            terminal.scrollHeight;
+
+
+        let porcentaje =
+            ((numero + 1) / mensajes.length) * 100;
+
+
+        progreso.style.width =
+            porcentaje + "%";
+
+
+        numero++;
+
+
+        setTimeout(
+            siguienteMensaje,
+            2200
+        );
+
+
+    } else {
+
+        setTimeout(() => {
+
+            document
+                .getElementById("pantalla1")
+                .classList.add("oculto");
+
+
+            document
+                .getElementById("pantalla2")
+                .classList.remove("oculto");
+
+        }, 2500);
+
+    }
+
+}
+
+
+/* =================================
+   MOSTRAR BROMA
+================================= */
+
+function mostrarBroma() {
+
+    document
+        .getElementById("pantalla2")
+        .style.display = "none";
+
+
+    document
+        .getElementById("pantalla3")
+        .style.display = "flex";
+
+}
+
+
+/* INICIAR */
+
+siguienteMensaje();
+
+</script>
+
+</body>
+</html>
